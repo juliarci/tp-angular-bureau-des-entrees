@@ -14,4 +14,13 @@ export class AppointmentHistoryService {
   getHistoryByPatient(patientId: number) {
     return this.http.get<Appointment[]>(`${this.apiUrl}?patientId=${patientId}`);
   }
+
+  getHistoryByDateRange(startDate: string, endDate: string) {
+    return this.http.get<Appointment[]>(`${this.apiUrl}?startDate=${startDate}&endDate=${endDate}`);
+  }
+
+  getTodayHistory() {
+    const today = new Date().toISOString().slice(0, 10); 
+    return this.getHistoryByDateRange(today, today);
+  }
 }
