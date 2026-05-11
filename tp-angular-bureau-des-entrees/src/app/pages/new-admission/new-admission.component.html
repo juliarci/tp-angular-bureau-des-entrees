@@ -64,7 +64,7 @@
                 <div class="step-content fade-in">
                   <div class="form-row">
                     <mat-form-field class="form-field form-field-full">
-                      <mat-label>IPP (Identifiant Permanent du Patient) *</mat-label>
+                      <mat-label>IPP (Identifiant Permanent du Patient) </mat-label>
                       <input matInput formControlName="ipp" placeholder="Ex: 0420998122">
                       @if (patientForm.get('ipp')?.hasError('required')) {
                         <mat-error>L'IPP est obligatoire</mat-error>
@@ -85,13 +85,13 @@
               <!-- ÉTAPE 2: IDENTITÉ INS & NOMS -->
               @if (currentStep === 2) {
                 <div class="step-content fade-in">
-                  <div class="section-subtitle">Noms et Prénoms *</div>
+                  <div class="section-subtitle">Noms et Prénoms</div>
                   <div formArrayName="names" class="form-array">
                     @for (name of namesArray.controls; track $index; let i = $index) {
                       <div [formGroupName]="i" class="array-item">
                         <div class="form-row">
                           <mat-form-field class="form-field">
-                            <mat-label>Prénom(s) *</mat-label>
+                            <mat-label>Prénom(s)</mat-label>
                             <input matInput formControlName="given" placeholder="Ex: Jean">
                             @if (name.get('given')?.hasError('required') && (name.get('given')?.touched || formSubmitted)) {
                               <mat-error>Le prénom est obligatoire</mat-error>
@@ -99,7 +99,7 @@
                           </mat-form-field>
 
                           <mat-form-field class="form-field">
-                            <mat-label>Nom *</mat-label>
+                            <mat-label>Nom</mat-label>
                             <input matInput formControlName="family" placeholder="Ex: Dupont">
                             @if (name.get('family')?.hasError('required') && (name.get('family')?.touched || formSubmitted)) {
                               <mat-error>Le nom est obligatoire</mat-error>
@@ -155,21 +155,21 @@
 
               <!-- ÉTAPE 3: ADMISSION & DONNÉES DÉMOGRAPHIQUES -->
               @if (currentStep === 3) {
-                <div class="step-content fade-in">
-                  <div class="section-subtitle">Données démographiques *</div>
-                  <div class="form-row">
-                    <mat-form-field class="form-field">
-                      <mat-label>Date de naissance *</mat-label>
-                      <input matInput [matDatepicker]="picker" formControlName="birthDate" placeholder="JJ/MM/YYYY">
-                      <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
-                      <mat-datepicker #picker></mat-datepicker>
-                      @if (patientForm.get('birthDate')?.hasError('required') && (patientForm.get('birthDate')?.touched || formSubmitted)) {
-                        <mat-error>La date de naissance est obligatoire</mat-error>
-                      }
-                    </mat-form-field>
+              <div class="step-content fade-in">
+                <div class="section-subtitle">Données démographiques</div>
+                <div class="form-row">
+                  <mat-form-field class="form-field">
+                    <mat-label>Date de naissance</mat-label>
+                    <input matInput [matDatepicker]="picker" formControlName="birthDate" placeholder="DD/MM/YYYY">
+                    <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
+                    <mat-datepicker #picker></mat-datepicker>
+                    @if (patientForm.get('birthDate')?.hasError('required') && (patientForm.get('birthDate')?.touched || formSubmitted)) {
+                      <mat-error>La date de naissance est obligatoire</mat-error>
+                    }
+                  </mat-form-field>
 
-                    <mat-form-field class="form-field">
-                      <mat-label>Genre *</mat-label>
+                  <mat-form-field class="form-field">
+                    <mat-label>Genre</mat-label>
                       <mat-select formControlName="gender">
                         <mat-option [value]="null">-- Sélectionner --</mat-option>
                         <mat-option value="male">Homme</mat-option>
@@ -226,41 +226,41 @@
 
                     @for (telecom of telecomsArray.controls; track $index; let i = $index) {
                       <div [formGroupName]="i" class="array-item">
-                        <div class="form-row">
-                          <mat-form-field class="form-field">
-                            <mat-label>Type *</mat-label>
-                            <mat-select formControlName="system">
-                              <mat-option [value]="null">-- Sélectionner --</mat-option>
-                              <mat-option value="phone">Téléphone</mat-option>
-                              <mat-option value="fax">Fax</mat-option>
-                              <mat-option value="email">Email</mat-option>
-                              <mat-option value="sms">SMS</mat-option>
-                              <mat-option value="url">URL</mat-option>
-                            </mat-select>
-                            @if (telecom.get('system')?.hasError('required') && (telecom.get('system')?.touched || formSubmitted)) {
-                              <mat-error>Le type est obligatoire</mat-error>
-                            }
-                          </mat-form-field>
+                      <div class="form-row">
+                        <mat-form-field class="form-field">
+                          <mat-label>Type</mat-label>
+                          <mat-select formControlName="system">
+                            <mat-option [value]="null">-- Sélectionner --</mat-option>
+                            <mat-option value="phone">Téléphone</mat-option>
+                            <mat-option value="fax">Fax</mat-option>
+                            <mat-option value="email">Email</mat-option>
+                            <mat-option value="sms">SMS</mat-option>
+                            <mat-option value="url">URL</mat-option>
+                          </mat-select>
+                          @if (telecom.get('system')?.hasError('required') && (telecom.get('system')?.touched || formSubmitted)) {
+                            <mat-error>Le type est obligatoire</mat-error>
+                          }
+                        </mat-form-field>
 
-                          <mat-form-field class="form-field">
-                            <mat-label>Valeur *</mat-label>
-                            <input matInput formControlName="value">
-                            @if (telecom.get('value')?.hasError('required') && (telecom.get('value')?.touched || formSubmitted)) {
-                              <mat-error>La valeur est obligatoire</mat-error>
-                            }
-                          </mat-form-field>
+                        <mat-form-field class="form-field">
+                          <mat-label>Intitulé</mat-label>
+                          <mat-select formControlName="use">
+                            <mat-option [value]="null">-- Non spécifié --</mat-option>
+                            <mat-option value="home">Domicile</mat-option>
+                            <mat-option value="work">Travail</mat-option>
+                            <mat-option value="temp">Temporaire</mat-option>
+                            <mat-option value="old">Ancien</mat-option>
+                            <mat-option value="mobile">Mobile</mat-option>
+                          </mat-select>
+                        </mat-form-field>
 
-                          <mat-form-field class="form-field">
-                            <mat-label>Utilisation</mat-label>
-                            <mat-select formControlName="use">
-                              <mat-option [value]="null">-- Non spécifié --</mat-option>
-                              <mat-option value="home">Domicile</mat-option>
-                              <mat-option value="work">Travail</mat-option>
-                              <mat-option value="temp">Temporaire</mat-option>
-                              <mat-option value="old">Ancien</mat-option>
-                              <mat-option value="mobile">Mobile</mat-option>
-                            </mat-select>
-                          </mat-form-field>
+                        <mat-form-field class="form-field">
+                          <mat-label>Valeur</mat-label>
+                          <input matInput formControlName="value">
+                          @if (telecom.get('value')?.hasError('required') && (telecom.get('value')?.touched || formSubmitted)) {
+                            <mat-error>La valeur est obligatoire</mat-error>
+                          }
+                        </mat-form-field>
 
                           <button
                             mat-icon-button
@@ -348,7 +348,16 @@
 
                       <mat-form-field class="form-field">
                         <mat-label>Lien de parenté</mat-label>
-                        <input matInput formControlName="relationship" placeholder="Ex: Épouse, Mère">
+                        <mat-select formControlName="relationship">
+                          <mat-option [value]="null">-- Sélectionner --</mat-option>
+                          <mat-option value="spouse">Époux/se</mat-option>
+                          <mat-option value="child">Enfant</mat-option>
+                          <mat-option value="parent">Parent</mat-option>
+                          <mat-option value="sibling">Frère/Sœur</mat-option>
+                          <mat-option value="grandparent">Grand-parent</mat-option>
+                          <mat-option value="grandchild">Petit-enfant</mat-option>
+                          <mat-option value="other">Autre</mat-option>
+                        </mat-select>
                       </mat-form-field>
 
                       <mat-form-field class="form-field">
@@ -360,7 +369,7 @@
                 </div>
               }
 
-              <!-- ÉTAPE 6: RÉCAPITULATIF & SIGNATURE -->
+              <!-- ÉTAPE 6: RÉCAPITULATIF & ENVOI -->
               @if (currentStep === 6) {
                 <div class="step-content fade-in">
                   <div class="recap-section">
@@ -412,15 +421,17 @@
 
               <!-- BOUTONS DE NAVIGATION -->
               <div class="form-navigation">
-                <button
-                  mat-raised-button
-                  type="button"
-                  (click)="previousStep()"
-                  [disabled]="currentStep === 1 || isLoading"
-                  class="nav-button">
-                  <mat-icon>arrow_back</mat-icon>
-                  Précédent
-                </button>
+                @if (currentStep > 1) {
+                  <button
+                    mat-raised-button
+                    type="button"
+                    (click)="previousStep()"
+                    [disabled]="isLoading"
+                    class="nav-button">
+                    <mat-icon>arrow_back</mat-icon>
+                    Précédent
+                  </button>
+                }
 
                 <div class="center-buttons">
                   <button
@@ -455,8 +466,8 @@
                       type="submit"
                       [disabled]="isLoading || !patientForm.valid"
                       class="submit-button">
-                      <mat-icon>check_circle</mat-icon>
-                      Créer le patient
+                      <mat-icon>send</mat-icon>
+                      Envoi
                     </button>
                   }
                 </div>

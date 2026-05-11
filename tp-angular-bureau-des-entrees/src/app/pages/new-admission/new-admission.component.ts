@@ -54,7 +54,7 @@ export class NewAdmissionComponent implements OnInit {
     { number: 3, label: 'Admission', icon: 'assignment' },
     { number: 4, label: 'Couverture & PEC', icon: 'description' },
     { number: 5, label: 'Contacts & confidentialité', icon: 'phone' },
-    { number: 6, label: 'Récapitulatif & signature', icon: 'done_all' }
+    { number: 6, label: 'Récapitulatif & envoi', icon: 'done_all' }
   ];
 
   constructor(
@@ -189,28 +189,51 @@ export class NewAdmissionComponent implements OnInit {
           this.snackBar.open(
             `✓ Patient créé avec succès - IPP: ${createdPatient.identifier[0].value}`,
             'Fermer',
-            { duration: 5000, horizontalPosition: 'end' }
+            { duration: 5000, horizontalPosition: 'end', panelClass: ['success-snackbar'] }
           );
           this.resetForm();
         },
         error: (error) => {
           this.isLoading = false;
+          const errorMsg = error?.error?.message || error?.message || 'Une erreur inconnue est survenue';
           this.snackBar.open(
-            `✗ Erreur lors de la création du patient: ${error}`,
+            `✗ Erreur: ${errorMsg}`,
             'Fermer',
             { duration: 5000, horizontalPosition: 'end', panelClass: ['error-snackbar'] }
           );
-          console.error('Erreur:', error);
+          console.error('Erreur lors de la création du patient:', error);
         }
       });
     } else {
+      // Récupérer les champs invalides
+      const invalidFields = this.getInvalidFields(this.patientForm);
       this.snackBar.open(
-        '⚠ Veuillez remplir tous les champs obligatoires',
+        `⚠ Champs manquants ou invalides: ${invalidFields.join(', ')}`,
         'Fermer',
-        { duration: 3000, horizontalPosition: 'end' }
+        { duration: 4000, horizontalPosition: 'end', panelClass: ['warning-snackbar'] }
       );
       this.markFormGroupTouched(this.patientForm);
     }
+  }
+
+  /**
+   * Récupère la liste des champs invalides
+   */
+  private getInvalidFields(formGroup: FormGroup | FormArray): string[] {
+    const invalidFields: string[] = [];
+
+    Object.keys(formGroup.controls).forEach(key => {
+      const control = formGroup.get(key);
+
+      if (control instanceof FormGroup || control instanceof FormArray) {
+        const subInvalid = this.getInvalidFields(control);
+        invalidFields.push(...subInvalid);
+      } else if (control && control.invalid) {
+        invalidFields.push(key);
+      }
+    });
+
+    return invalidFields;
   }
 
   private buildPatientObject(formValue: any): BureauEntreesPatient {
@@ -252,7 +275,7 @@ export class NewAdmissionComponent implements OnInit {
         prefix: name.prefix ? [name.prefix] : undefined,
         suffix: name.suffix ? [name.suffix] : undefined
       })),
-      birthDate: formValue.birthDate,
+      birthDate: this.formatDateForFHIR(formValue.birthDate),
       gender: formValue.gender,
       telecom: formValue.telecoms.length > 0 ? formValue.telecoms : undefined,
       address: formValue.addresses.length > 0 ? formValue.addresses : undefined,
@@ -372,5 +395,32 @@ export class NewAdmissionComponent implements OnInit {
 
   private scrollToTop(): void {
     window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  /**
+   * Formate une date au format FHIR (YYYY-MM-DD)
+   */
+  private formatDateForFHIR(date: any): string {
+    if (!date) {
+      return '';
+    }
+
+    // Si c'est une string, on la retourne déjà formatée
+    if (typeof date === 'string') {
+      // Si elle est au format YYYY-MM-DD, on la retourne
+      if (/^\d{4}-\d{2}-\d{2}$/.test(date)) {
+        return date;
+      }
+    }
+
+    // Si c'est un objet Date
+    if (date instanceof Date) {
+      const year = date.getFullYear();
+      const month = String(date.getMonth() + 1).padStart(2, '0');
+      const day = String(date.getDate()).padStart(2, '0');
+      return `${year}-${month}-${day}`;
+    }
+
+    return date;
   }
 }

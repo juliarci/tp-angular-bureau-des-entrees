@@ -12,7 +12,7 @@
 
 // ==================== HEADER SECTION ====================
 .header-section {
-  margin-bottom: 32px;
+  margin-bottom: 48px;
   background: white;
   padding: 32px;
   border-radius: 12px;
@@ -55,7 +55,7 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  gap: 12px;
+  gap: 20px;
 }
 
 .step-item {
@@ -226,7 +226,7 @@
 
   .array-item {
     padding: 20px;
-    margin-bottom: 16px;
+    margin-bottom: 24px;
     background-color: #f8f9fa;
     border: 1px solid #e0e0e0;
     border-radius: 8px;
