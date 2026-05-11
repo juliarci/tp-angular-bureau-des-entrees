@@ -27,7 +27,7 @@ export class AppSidebarComponent {
       title: 'PILOTAGE',
       items: [
         { label: 'Tableau de bord', route: '/dashboard' },
-        { label: 'Admissions du jour', route: '/admissions', badge: 47, badgeColor: 'blue' }
+        { label: 'Admissions du jour', route: '/admissions' }
       ]
     },
     {
