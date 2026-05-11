@@ -1,2 +1,532 @@
-<h1>Nouvelle admission</h1>
-<p>Page en construction</p>
+<div class="new-admission-container">
+  <!-- En-tête avec titre et progression -->
+  <div class="header-section">
+    <div class="header-content">
+      <h1 class="main-title">Nouvelle admission — Étape {{ currentStep }} / {{ totalSteps }}</h1>
+      <p class="subtitle">{{ steps[currentStep - 1]?.label }}</p>
+    </div>
+
+    <!-- Barre de progression -->
+    <div class="progress-bar-container">
+      <div class="progress-bar" [style.width.%]="(currentStep / totalSteps) * 100"></div>
+    </div>
+
+    <!-- Étapes visuelles -->
+    <div class="steps-container">
+      @for (step of steps; track step.number; let last = $last) {
+        <div
+          class="step-item"
+          [class.active]="currentStep === step.number"
+          [class.completed]="currentStep > step.number"
+          (click)="goToStep(step.number)">
+
+          <div class="step-circle">
+            @if (currentStep > step.number) {
+              <mat-icon class="check-icon">check</mat-icon>
+            }
+            @if (currentStep <= step.number) {
+              <span>{{ step.number }}</span>
+            }
+          </div>
+
+          <span class="step-label">{{ step.label }}</span>
+
+          @if (!last) {
+            <div class="step-connector" [class.completed]="currentStep > step.number"></div>
+          }
+        </div>
+      }
+    </div>
+
+    <div class="main-content">
+      <!-- Colonne principale du formulaire -->
+      <div class="form-column">
+        <mat-card class="form-card">
+          <mat-card-header>
+            <mat-card-title>
+              <mat-icon class="section-icon">{{ steps[currentStep - 1]?.icon }}</mat-icon>
+              {{ steps[currentStep - 1]?.label }}
+            </mat-card-title>
+          </mat-card-header>
+
+          <mat-card-content>
+            <form [formGroup]="patientForm" (ngSubmit)="submitForm()">
+              <!-- Overlay de chargement -->
+              @if (isLoading) {
+                <div class="loading-overlay">
+                  <mat-spinner diameter="50"></mat-spinner>
+                  <p>Création du patient en cours...</p>
+                </div>
+              }
+
+              <!-- ÉTAPE 1: IDENTIFIANTS -->
+              @if (currentStep === 1) {
+                <div class="step-content fade-in">
+                  <div class="form-row">
+                    <mat-form-field class="form-field form-field-full">
+                      <mat-label>IPP (Identifiant Permanent du Patient) *</mat-label>
+                      <input matInput formControlName="ipp" placeholder="Ex: 0420998122">
+                      @if (patientForm.get('ipp')?.hasError('required')) {
+                        <mat-error>L'IPP est obligatoire</mat-error>
+                      }
+                    </mat-form-field>
+                  </div>
+
+                  <div class="form-row">
+                    <mat-form-field class="form-field form-field-full">
+                      <mat-label>INS (Identifiant National de Santé)</mat-label>
+                      <input matInput formControlName="ins" placeholder="Ex: 2 93 04 75 856 123 / 18">
+                      <mat-hint>Optionnel si INS qualifié fourni</mat-hint>
+                    </mat-form-field>
+                  </div>
+                </div>
+              }
+
+              <!-- ÉTAPE 2: IDENTITÉ INS & NOMS -->
+              @if (currentStep === 2) {
+                <div class="step-content fade-in">
+                  <div class="section-subtitle">Noms et Prénoms *</div>
+                  <div formArrayName="names" class="form-array">
+                    @for (name of namesArray.controls; track $index; let i = $index) {
+                      <div [formGroupName]="i" class="array-item">
+                        <div class="form-row">
+                          <mat-form-field class="form-field">
+                            <mat-label>Prénom(s) *</mat-label>
+                            <input matInput formControlName="given" placeholder="Ex: Jean">
+                            @if (name.get('given')?.hasError('required') && (name.get('given')?.touched || formSubmitted)) {
+                              <mat-error>Le prénom est obligatoire</mat-error>
+                            }
+                          </mat-form-field>
+
+                          <mat-form-field class="form-field">
+                            <mat-label>Nom *</mat-label>
+                            <input matInput formControlName="family" placeholder="Ex: Dupont">
+                            @if (name.get('family')?.hasError('required') && (name.get('family')?.touched || formSubmitted)) {
+                              <mat-error>Le nom est obligatoire</mat-error>
+                            }
+                          </mat-form-field>
+                        </div>
+
+                        <div class="form-row">
+                          <mat-form-field class="form-field">
+                            <mat-label>Type d'utilisation</mat-label>
+                            <mat-select formControlName="use">
+                              <mat-option value="usual">Habituel</mat-option>
+                              <mat-option value="official">Officiel</mat-option>
+                              <mat-option value="temp">Temporaire</mat-option>
+                              <mat-option value="nickname">Surnom</mat-option>
+                              <mat-option value="old">Ancien</mat-option>
+                              <mat-option value="maiden">Nom de jeune fille</mat-option>
+                            </mat-select>
+                          </mat-form-field>
+
+                          <mat-form-field class="form-field">
+                            <mat-label>Préfixe</mat-label>
+                            <input matInput formControlName="prefix" placeholder="Ex: Dr., M.">
+                          </mat-form-field>
+
+                          <mat-form-field class="form-field">
+                            <mat-label>Suffixe</mat-label>
+                            <input matInput formControlName="suffix" placeholder="Ex: Jr., III">
+                          </mat-form-field>
+
+                          <button
+                            mat-icon-button
+                            type="button"
+                            (click)="removeName(i)"
+                            [disabled]="namesArray.length === 1 || isLoading"
+                            class="remove-btn"
+                            matTooltip="Supprimer ce nom">
+                            <mat-icon>delete</mat-icon>
+                          </button>
+                        </div>
+                      </div>
+                    }
+                  </div>
+
+                  <div class="add-button-row">
+                    <button mat-stroked-button type="button" (click)="addName()" [disabled]="isLoading">
+                      <mat-icon>add</mat-icon>
+                      Ajouter un nom
+                    </button>
+                  </div>
+                </div>
+              }
+
+              <!-- ÉTAPE 3: ADMISSION & DONNÉES DÉMOGRAPHIQUES -->
+              @if (currentStep === 3) {
+                <div class="step-content fade-in">
+                  <div class="section-subtitle">Données démographiques *</div>
+                  <div class="form-row">
+                    <mat-form-field class="form-field">
+                      <mat-label>Date de naissance *</mat-label>
+                      <input matInput [matDatepicker]="picker" formControlName="birthDate" placeholder="JJ/MM/YYYY">
+                      <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
+                      <mat-datepicker #picker></mat-datepicker>
+                      @if (patientForm.get('birthDate')?.hasError('required') && (patientForm.get('birthDate')?.touched || formSubmitted)) {
+                        <mat-error>La date de naissance est obligatoire</mat-error>
+                      }
+                    </mat-form-field>
+
+                    <mat-form-field class="form-field">
+                      <mat-label>Genre *</mat-label>
+                      <mat-select formControlName="gender">
+                        <mat-option [value]="null">-- Sélectionner --</mat-option>
+                        <mat-option value="male">Homme</mat-option>
+                        <mat-option value="female">Femme</mat-option>
+                        <mat-option value="other">Autre</mat-option>
+                        <mat-option value="unknown">Inconnu</mat-option>
+                      </mat-select>
+                      @if (patientForm.get('gender')?.hasError('required') && (patientForm.get('gender')?.touched || formSubmitted)) {
+                        <mat-error>Le genre est obligatoire</mat-error>
+                      }
+                    </mat-form-field>
+
+                    <mat-form-field class="form-field">
+                      <mat-label>Nationalité</mat-label>
+                      <mat-select formControlName="nationality">
+                        <mat-option [value]="null">-- Sélectionner --</mat-option>
+                        @for (country of nationalityOptions; track country.code) {
+                          <mat-option [value]="country.code">
+                            {{ country.display }}
+                          </mat-option>
+                        }
+                      </mat-select>
+                    </mat-form-field>
+                  </div>
+                </div>
+              }
+
+              <!-- ÉTAPE 4: COUVERTURE & PEC -->
+              @if (currentStep === 4) {
+                <div class="step-content fade-in">
+                  <div class="form-row">
+                    <mat-form-field class="form-field form-field-full">
+                      <mat-label>Référence du médecin traitant</mat-label>
+                      <input matInput formControlName="generalPractitioner" placeholder="Ex: Practitioner/123">
+                      <mat-hint>Format: Practitioner/[id]</mat-hint>
+                    </mat-form-field>
+                  </div>
+                  <p class="info-text">Les informations de couverture et de prise en charge seront saisies à l'étape
+                    suivante.</p>
+                </div>
+              }
+
+              <!-- ÉTAPE 5: CONTACTS & CONFIDENTIALITÉ -->
+              @if (currentStep === 5) {
+                <div class="step-content fade-in">
+                  <div class="section-subtitle">Coordonnées de contact</div>
+                  <div formArrayName="telecoms" class="form-array">
+                    @if (telecomsArray.length === 0) {
+                      <div class="empty-message">
+                        <mat-icon>phone</mat-icon>
+                        <p>Aucun contact ajouté. Cliquez sur le + pour en ajouter.</p>
+                      </div>
+                    }
+
+                    @for (telecom of telecomsArray.controls; track $index; let i = $index) {
+                      <div [formGroupName]="i" class="array-item">
+                        <div class="form-row">
+                          <mat-form-field class="form-field">
+                            <mat-label>Type *</mat-label>
+                            <mat-select formControlName="system">
+                              <mat-option [value]="null">-- Sélectionner --</mat-option>
+                              <mat-option value="phone">Téléphone</mat-option>
+                              <mat-option value="fax">Fax</mat-option>
+                              <mat-option value="email">Email</mat-option>
+                              <mat-option value="sms">SMS</mat-option>
+                              <mat-option value="url">URL</mat-option>
+                            </mat-select>
+                            @if (telecom.get('system')?.hasError('required') && (telecom.get('system')?.touched || formSubmitted)) {
+                              <mat-error>Le type est obligatoire</mat-error>
+                            }
+                          </mat-form-field>
+
+                          <mat-form-field class="form-field">
+                            <mat-label>Valeur *</mat-label>
+                            <input matInput formControlName="value">
+                            @if (telecom.get('value')?.hasError('required') && (telecom.get('value')?.touched || formSubmitted)) {
+                              <mat-error>La valeur est obligatoire</mat-error>
+                            }
+                          </mat-form-field>
+
+                          <mat-form-field class="form-field">
+                            <mat-label>Utilisation</mat-label>
+                            <mat-select formControlName="use">
+                              <mat-option [value]="null">-- Non spécifié --</mat-option>
+                              <mat-option value="home">Domicile</mat-option>
+                              <mat-option value="work">Travail</mat-option>
+                              <mat-option value="temp">Temporaire</mat-option>
+                              <mat-option value="old">Ancien</mat-option>
+                              <mat-option value="mobile">Mobile</mat-option>
+                            </mat-select>
+                          </mat-form-field>
+
+                          <button
+                            mat-icon-button
+                            type="button"
+                            (click)="removeTelecom(i)"
+                            [disabled]="isLoading"
+                            class="remove-btn"
+                            matTooltip="Supprimer ce contact">
+                            <mat-icon>delete</mat-icon>
+                          </button>
+                        </div>
+                      </div>
+                    }
+                  </div>
+
+                  <div class="add-button-row">
+                    <button mat-stroked-button type="button" (click)="addTelecom()" [disabled]="isLoading">
+                      <mat-icon>add</mat-icon>
+                      Ajouter un contact
+                    </button>
+                  </div>
+
+                  <div class="section-subtitle">Adresse</div>
+                  <div formArrayName="addresses" class="form-array">
+                    @if (addressesArray.length === 0) {
+                      <div class="empty-message">
+                        <mat-icon>location_on</mat-icon>
+                        <p>Aucune adresse ajoutée. Cliquez sur le + pour en ajouter.</p>
+                      </div>
+                    }
+
+                    @for (item of addressesArray.controls; track $index; let i = $index) {
+                      <div [formGroupName]="i" class="array-item">
+                        <div class="form-row">
+                          <mat-form-field class="form-field form-field-full">
+                            <mat-label>Rue/Lieu-dit</mat-label>
+                            <input matInput formControlName="line">
+                          </mat-form-field>
+                        </div>
+
+                        <div class="form-row">
+                          <mat-form-field class="form-field">
+                            <mat-label>Ville</mat-label>
+                            <input matInput formControlName="city">
+                          </mat-form-field>
+
+                          <mat-form-field class="form-field">
+                            <mat-label>Code postal</mat-label>
+                            <input matInput formControlName="postalCode">
+                          </mat-form-field>
+
+                          <mat-form-field class="form-field">
+                            <mat-label>Pays</mat-label>
+                            <input matInput formControlName="country">
+                          </mat-form-field>
+
+                          <button
+                            mat-icon-button
+                            type="button"
+                            (click)="removeAddress(i)"
+                            [disabled]="isLoading"
+                            class="remove-btn"
+                            matTooltip="Supprimer cette adresse">
+                            <mat-icon>delete</mat-icon>
+                          </button>
+                        </div>
+                      </div>
+                    }
+                  </div>
+
+                  <div class="add-button-row">
+                    <button mat-stroked-button type="button" (click)="addAddress()" [disabled]="isLoading">
+                      <mat-icon>add</mat-icon>
+                      Ajouter une adresse
+                    </button>
+                  </div>
+
+                  <div class="section-subtitle">Personne de confiance</div>
+                  <div [formGroup]="emergencyContactForm">
+                    <div class="form-row">
+                      <mat-form-field class="form-field">
+                        <mat-label>Nom</mat-label>
+                        <input matInput formControlName="name" placeholder="Ex: Marie Dupont">
+                      </mat-form-field>
+
+                      <mat-form-field class="form-field">
+                        <mat-label>Lien de parenté</mat-label>
+                        <input matInput formControlName="relationship" placeholder="Ex: Épouse, Mère">
+                      </mat-form-field>
+
+                      <mat-form-field class="form-field">
+                        <mat-label>Téléphone</mat-label>
+                        <input matInput formControlName="phone" placeholder="Ex: 01 23 45 67 89">
+                      </mat-form-field>
+                    </div>
+                  </div>
+                </div>
+              }
+
+              <!-- ÉTAPE 6: RÉCAPITULATIF & SIGNATURE -->
+              @if (currentStep === 6) {
+                <div class="step-content fade-in">
+                  <div class="recap-section">
+                    <div class="recap-item">
+                      <mat-icon>person</mat-icon>
+                      <div class="recap-content">
+                        <strong>Identité</strong>
+                        <p>{{ patientForm.get('names')?.value[0]?.given }} {{ patientForm.get('names')?.value[0]?.family }}</p>
+                      </div>
+                    </div>
+
+                    <div class="recap-item">
+                      <mat-icon>calendar_today</mat-icon>
+                      <div class="recap-content">
+                        <strong>Date de naissance</strong>
+                        <p>{{ patientForm.get('birthDate')?.value | date: 'dd/MM/yyyy' }}</p>
+                      </div>
+                    </div>
+
+                    <div class="recap-item">
+                      <mat-icon>badge</mat-icon>
+                      <div class="recap-content">
+                        <strong>IPP</strong>
+                        <p>{{ patientForm.get('ipp')?.value }}</p>
+                      </div>
+                    </div>
+
+                    @if (patientForm.get('ins')?.value) {
+                      <div class="recap-item">
+                        <mat-icon>account_box</mat-icon>
+                        <div class="recap-content">
+                          <strong>INS</strong>
+                          <p>{{ patientForm.get('ins')?.value }}</p>
+                        </div>
+                      </div>
+                    }
+                  </div>
+
+                  <mat-divider class="recap-divider"></mat-divider>
+
+                  <div class="form-row">
+                    <p class="confirmation-text">
+                      ✓ Tous les champs obligatoires ont été remplis.
+                      <br>Cliquez sur "Créer le patient" pour finaliser l'admission.
+                    </p>
+                  </div>
+                </div>
+              }
+
+              <!-- BOUTONS DE NAVIGATION -->
+              <div class="form-navigation">
+                <button
+                  mat-raised-button
+                  type="button"
+                  (click)="previousStep()"
+                  [disabled]="currentStep === 1 || isLoading"
+                  class="nav-button">
+                  <mat-icon>arrow_back</mat-icon>
+                  Précédent
+                </button>
+
+                <div class="center-buttons">
+                  <button
+                    mat-stroked-button
+                    type="button"
+                    (click)="resetForm()"
+                    [disabled]="isLoading"
+                    class="reset-button">
+                    <mat-icon>refresh</mat-icon>
+                    Réinitialiser
+                  </button>
+                </div>
+
+                <div class="right-buttons">
+                  @if (currentStep < totalSteps) {
+                    <button
+                      mat-raised-button
+                      color="primary"
+                      type="button"
+                      (click)="nextStep()"
+                      [disabled]="isLoading"
+                      class="nav-button">
+                      Suivant
+                      <mat-icon>arrow_forward</mat-icon>
+                    </button>
+                  }
+
+                  @if (currentStep === totalSteps) {
+                    <button
+                      mat-raised-button
+                      color="primary"
+                      type="submit"
+                      [disabled]="isLoading || !patientForm.valid"
+                      class="submit-button">
+                      <mat-icon>check_circle</mat-icon>
+                      Créer le patient
+                    </button>
+                  }
+                </div>
+              </div>
+            </form>
+          </mat-card-content>
+        </mat-card>
+      </div>
+
+      <!-- Panneau latéral - Résumé -->
+      <div class="summary-panel">
+        <mat-card class="summary-card">
+          <mat-card-header>
+            <mat-card-title>Champs obligatoires</mat-card-title>
+          </mat-card-header>
+
+          <mat-card-content>
+            <div class="completion-info">
+              <div class="progress-circle">
+                <div class="progress-percentage">{{ getCompletionPercentage() }}%</div>
+              </div>
+              <p class="completion-text">{{ getCompletionPercentage() }}/100 complété</p>
+            </div>
+
+            <mat-divider></mat-divider>
+
+            <div class="checklist">
+              <div class="checklist-item" [class.completed]="patientForm.get('ipp')?.valid">
+                @if (patientForm.get('ipp')?.valid) {
+                  <mat-icon class="check">check_circle</mat-icon>
+                }
+                @if (!patientForm.get('ipp')?.valid) {
+                  <mat-icon class="uncomplete">radio_button_unchecked</mat-icon>
+                }
+                <span>IPP (Identifiant)</span>
+              </div>
+
+              <div class="checklist-item" [class.completed]="(namesArray.at(0))?.valid">
+                @if ((namesArray.at(0))?.valid) {
+                  <mat-icon class="check">check_circle</mat-icon>
+                }
+                @if (!(namesArray.at(0))?.valid) {
+                  <mat-icon class="uncomplete">radio_button_unchecked</mat-icon>
+                }
+                <span>Nom et Prénom</span>
+              </div>
+
+              <div class="checklist-item" [class.completed]="patientForm.get('birthDate')?.valid">
+                @if (patientForm.get('birthDate')?.valid) {
+                  <mat-icon class="check">check_circle</mat-icon>
+                }
+                @if (!patientForm.get('birthDate')?.valid) {
+                  <mat-icon class="uncomplete">radio_button_unchecked</mat-icon>
+                }
+                <span>Date de naissance</span>
+              </div>
+
+              <div class="checklist-item" [class.completed]="patientForm.get('gender')?.valid">
+                @if (patientForm.get('gender')?.valid) {
+                  <mat-icon class="check">check_circle</mat-icon>
+                }
+                @if (!patientForm.get('gender')?.valid) {
+                  <mat-icon class="uncomplete">radio_button_unchecked</mat-icon>
+                }
+                <span>Genre</span>
+              </div>
+            </div>
+          </mat-card-content>
+        </mat-card>
+      </div>
+    </div>
+  </div>
+</div>
