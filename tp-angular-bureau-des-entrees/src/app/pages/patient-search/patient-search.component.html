@@ -1,2 +1,59 @@
 <h1>Recherche patient</h1>
-<p>Page en construction</p>
+
+<div class="search-form">
+  <mat-form-field appearance="outline">
+    <mat-label>Nom</mat-label>
+    <input matInput [(ngModel)]="name" placeholder="Nom du patient">
+  </mat-form-field>
+
+  <mat-form-field appearance="outline">
+    <mat-label>IPP / INS</mat-label>
+    <input matInput [(ngModel)]="identifier" placeholder="Identifiant">
+  </mat-form-field>
+
+  <mat-form-field appearance="outline">
+    <mat-label>Date de naissance</mat-label>
+    <input matInput [(ngModel)]="birthdate" type="date">
+  </mat-form-field>
+
+  <button mat-raised-button color="primary" (click)="search()" [disabled]="loading">
+    Rechercher
+  </button>
+</div>
+
+@if (loading) {
+  <div class="spinner-container">
+    <mat-spinner diameter="40"></mat-spinner>
+  </div>
+}
+
+@if (!loading && searched && patients.length === 0) {
+  <p class="no-results">Aucun patient trouve.</p>
+}
+
+@if (!loading && patients.length > 0) {
+  <table mat-table [dataSource]="patients" class="results-table">
+    <ng-container matColumnDef="name">
+      <th mat-header-cell *matHeaderCellDef>Nom</th>
+      <td mat-cell *matCellDef="let patient">{{ getPatientName(patient) }}</td>
+    </ng-container>
+
+    <ng-container matColumnDef="birthDate">
+      <th mat-header-cell *matHeaderCellDef>Date de naissance</th>
+      <td mat-cell *matCellDef="let patient">{{ patient.birthDate ?? '-' }}</td>
+    </ng-container>
+
+    <ng-container matColumnDef="gender">
+      <th mat-header-cell *matHeaderCellDef>Sexe</th>
+      <td mat-cell *matCellDef="let patient">{{ patient.gender ?? '-' }}</td>
+    </ng-container>
+
+    <ng-container matColumnDef="identifier">
+      <th mat-header-cell *matHeaderCellDef>Identifiant</th>
+      <td mat-cell *matCellDef="let patient">{{ getPatientIdentifier(patient) }}</td>
+    </ng-container>
+
+    <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+    <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+  </table>
+}
