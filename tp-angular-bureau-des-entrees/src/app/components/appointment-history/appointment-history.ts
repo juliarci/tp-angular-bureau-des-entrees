@@ -9,7 +9,7 @@ import {HttpClient} from '@angular/common/http';
   styleUrl: './appointment-history.css',
 })
 export class AppointmentHistory {
-  appointments: Appointment[];
+  appointments: Appointment[] = [];
 
   constructor() {}
 }

@@ -1,0 +1,26 @@
+<nav class="sidebar">
+  <div class="sidebar-logo">
+    <div class="logo-text">
+      <span class="hospital-name">CH ISIS</span>
+      <span class="service-name">BUREAU DES ENTREES</span>
+    </div>
+  </div>
+
+  @for (section of sections; track section.title) {
+    <div class="nav-section">
+      <span class="section-title">{{ section.title }}</span>
+      @for (item of section.items; track item.route) {
+        <a class="nav-item"
+           [routerLink]="item.route"
+           routerLinkActive="active">
+          <span class="nav-label">{{ item.label }}</span>
+          @if (item.badge) {
+            <span class="nav-badge" [class.badge-red]="item.badgeColor === 'red'" [class.badge-blue]="item.badgeColor === 'blue'">
+              {{ item.badge }}
+            </span>
+          }
+        </a>
+      }
+    </div>
+  }
+</nav>
