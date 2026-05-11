@@ -149,11 +149,9 @@ src/
 
 Ce projet couvre exclusivement les ressources du **bureau des entrées** :
 
-- ✅ Ressource `Patient` (profil `BureauEntreesPatientProfile`)
-- ✅ ValueSet `VSPaysNationalite` (nationalités ISO 3166)
-- ✅ Gestion des admissions (simulation)
-- ❌ Ressource `Appointment` — hors périmètre
-- ❌ Ressource `Practitioner` — gérée par le groupe *Ressources Humaines*
+- Ressource `Patient` (profil `BureauEntreesPatientProfile`)
+- ValueSet `VSPaysNationalite` (nationalités ISO 3166)
+- Gestion des admissions (simulation)
 
 ---
 
