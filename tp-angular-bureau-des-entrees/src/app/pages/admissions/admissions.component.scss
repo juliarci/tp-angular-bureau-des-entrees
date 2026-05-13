@@ -239,6 +239,14 @@ h1 {
   background: #e3eafc;
   color: #0d47a1;
 }
+
+.clear-btn {
+  background-color: var(--color-primary) !important;
+  color: #FFFFFF !important;
+  font-size: 13px;
+  white-space: nowrap;
+}
+
 @media (max-width: 900px) {
   .admissions-header, .admissions-table-container {
     padding: 0.5rem;

@@ -5,7 +5,7 @@
 
   <div class="admissions-filters-container mat-elevation-z2">
     <mat-form-field appearance="outline" style="min-width: 120px; flex: 1;">
-      <mat-label>Rechercher un patient, IPP, INS, date de naissance...</mat-label>
+      <mat-label>Rechercher un patient, date de naissance...</mat-label>
       <input matInput placeholder="Recherche...">
     </mat-form-field>
     <mat-form-field appearance="outline" style="min-width: 90px;">
@@ -36,8 +36,7 @@
       </mat-select>
     </mat-form-field>
     <div class="filter-actions">
-      <button class="filter-link">Effacer</button>
-      <button class="filter-link">Enregistrer la vue</button>
+      <button  mat-raised-button class="clear-btn" (click)="clearFilters()">Effacer</button>
     </div>
   </div>
 </div>
@@ -108,7 +107,7 @@
     <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
     <tr mat-row *matRowDef="let row; columns: displayedColumns;" (click)="goToPatientRecord(row)" style="cursor:pointer;"></tr>
   </table>
-  <div *ngIf="appointments.length === 0" class="empty-table-message" style="text-align:center; color:#888; padding:2em;">
+  <div [@if]="appointments.length === 0" class="empty-table-message" style="text-align:center; color:#888; padding:2em;">
     Aucune admission à afficher pour ce jour.
   </div>
 </div>
