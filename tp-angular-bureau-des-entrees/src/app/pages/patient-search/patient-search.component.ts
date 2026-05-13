@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import {ChangeDetectorRef, Component} from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
@@ -33,7 +33,7 @@ export class PatientSearchComponent {
 
   displayedColumns = ['name', 'birthDate', 'gender', 'identifier'];
 
-  constructor(private patientService: PatientService) {}
+  constructor(private patientService: PatientService, private cd: ChangeDetectorRef) {}
 
   search() {
     if (!this.name && !this.identifier && !this.birthdate) return;
@@ -49,10 +49,12 @@ export class PatientSearchComponent {
       next: (patients) => {
         this.patients = patients;
         this.loading = false;
+        this.cd.detectChanges();
       },
       error: () => {
         this.patients = [];
         this.loading = false;
+        this.cd.detectChanges();
       }
     });
   }
