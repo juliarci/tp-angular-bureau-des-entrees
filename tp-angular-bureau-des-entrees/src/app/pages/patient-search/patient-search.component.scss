@@ -4,5 +4,44 @@
 
 h1 {
   color: var(--color-text);
-  margin-bottom: 8px;
+  margin-bottom: 16px;
+}
+
+.search-form {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  flex-wrap: wrap;
+  margin-bottom: 24px;
+
+  mat-form-field {
+    flex: 1;
+    min-width: 180px;
+  }
+
+  button {
+    margin-top: 4px;
+    height: 56px;
+    background-color: var(--color-primary);
+  }
+}
+
+.spinner-container {
+  display: flex;
+  justify-content: center;
+  padding: 32px;
+}
+
+.no-results {
+  color: var(--color-text-muted);
+  text-align: center;
+  padding: 32px;
+}
+
+.results-table {
+  width: 100%;
+  background: white;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
 }
