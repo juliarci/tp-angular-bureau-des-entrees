@@ -219,6 +219,11 @@
   &.form-field-full {
     grid-column: 1 / -1;
   }
+
+  // Position relative pour la barre de progression
+  ::ng-deep mat-form-field {
+    position: relative;
+  }
 }
 
 .form-array {
@@ -528,6 +533,56 @@ mat-form-field {
   mat-hint {
     font-size: 12px;
     color: rgba(0, 0, 0, 0.5);
+  }
+
+  // Styles pour les indicateurs de taille de champ
+  .char-count {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-weight: 500;
+    transition: color 0.3s ease;
+
+    &.valid {
+      color: #4caf50;
+    }
+
+    &.invalid {
+      color: #ff9800;
+    }
+
+    .inline-icon {
+      font-size: 16px;
+      width: 16px;
+      height: 16px;
+
+      &.valid-icon {
+        color: #4caf50;
+      }
+
+      &.invalid-icon {
+        color: #ff9800;
+      }
+    }
+  }
+
+  // Barre de progression pour les champs
+  .progress-bar {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    height: 3px;
+    background-color: #ff9800;
+    transition: all 0.3s ease;
+    border-radius: 2px;
+
+    &.valid {
+      background-color: #4caf50;
+    }
+
+    &.invalid {
+      background-color: #ff9800;
+    }
   }
 }
 

@@ -7,12 +7,12 @@
     </div>
 
     <!-- Barre de progression -->
-    <div class="progress-bar-container">
+    <div class="progress-bar-container" style="margin-bottom: 2rem;">
       <div class="progress-bar" [style.width.%]="(currentStep / totalSteps) * 100"></div>
     </div>
 
     <!-- Étapes visuelles -->
-    <div class="steps-container">
+    <div class="steps-container" style="margin-bottom: 2rem;">
       @for (step of steps; track step.number; let last = $last) {
         <div
           class="step-item"
@@ -65,9 +65,30 @@
                   <div class="form-row">
                     <mat-form-field class="form-field form-field-full">
                       <mat-label>IPP (Identifiant Permanent du Patient) </mat-label>
-                      <input matInput formControlName="ipp" placeholder="Ex: 0420998122">
+                      <input matInput formControlName="ipp" placeholder="Ex: 0420998122" (input)="filterIppInput($event)" type="text" inputmode="numeric">
+                      <mat-hint align="end">
+                        <span class="char-count" [class.valid]="ippCharCount >= 8" [class.invalid]="ippCharCount > 0 && ippCharCount < 8">
+                          {{ ippCharCount }}/8
+                          @if (ippCharCount >= 8) {
+                            <mat-icon class="inline-icon valid-icon">check_circle</mat-icon>
+                          }
+                          @if (ippCharCount > 0 && ippCharCount < 8) {
+                            <mat-icon class="inline-icon invalid-icon">error</mat-icon>
+                          }
+                        </span>
+                      </mat-hint>
+                      <div class="progress-bar" [style.width.%]="Math.min((ippCharCount / 8) * 100, 100)" [class.valid]="ippCharCount >= 8" [class.invalid]="ippCharCount > 0 && ippCharCount < 8"></div>
                       @if (patientForm.get('ipp')?.hasError('required')) {
                         <mat-error>L'IPP est obligatoire</mat-error>
+                      }
+                      @if (patientForm.get('ipp')?.hasError('ippFormat')) {
+                        <mat-error>L'IPP doit contenir uniquement des chiffres</mat-error>
+                      }
+                      @if (patientForm.get('ipp')?.hasError('ippTooShort')) {
+                        <mat-error>L'IPP doit contenir {{ 8 - ippCharCount }} chiffres de plus (minimum 8)</mat-error>
+                      }
+                      @if (patientForm.get('ipp')?.hasError('ippTooLong')) {
+                        <mat-error>L'IPP contient {{ ippCharCount - 12 }} chiffres en trop (maximum 12)</mat-error>
                       }
                     </mat-form-field>
                   </div>
@@ -75,8 +96,25 @@
                   <div class="form-row">
                     <mat-form-field class="form-field form-field-full">
                       <mat-label>INS (Identifiant National de Santé)</mat-label>
-                      <input matInput formControlName="ins" placeholder="Ex: 2 93 04 75 856 123 / 18">
-                      <mat-hint>Optionnel si INS qualifié fourni</mat-hint>
+                      <input matInput formControlName="ins" placeholder="Ex: 2 93 04 75 856 123 / 18" (input)="filterInsInput($event)" type="text" inputmode="numeric">
+                      <mat-hint align="end">
+                        <span class="char-count" [class.valid]="insCharCount >= 13" [class.invalid]="insCharCount > 0 && insCharCount < 13">
+                          {{ insCharCount }}/13
+                          @if (insCharCount >= 13) {
+                            <mat-icon class="inline-icon valid-icon">check_circle</mat-icon>
+                          }
+                          @if (insCharCount > 0 && insCharCount < 13) {
+                            <mat-icon class="inline-icon invalid-icon">error</mat-icon>
+                          }
+                        </span>
+                      </mat-hint>
+                      <div class="progress-bar" [style.width.%]="Math.min((insCharCount / 13) * 100, 100)" [class.valid]="insCharCount >= 13" [class.invalid]="insCharCount > 0 && insCharCount < 13"></div>
+                      @if (patientForm.get('ins')?.hasError('insTooShort')) {
+                        <mat-error>L'INS doit contenir {{ 13 - insCharCount }} caractères de plus (minimum 13)</mat-error>
+                      }
+                      @if (patientForm.get('ins')?.hasError('insTooLong')) {
+                        <mat-error>L'INS contient {{ insCharCount - 15 }} caractères en trop (maximum 15)</mat-error>
+                      }
                     </mat-form-field>
                   </div>
                 </div>
@@ -122,12 +160,21 @@
 
                           <mat-form-field class="form-field">
                             <mat-label>Préfixe</mat-label>
-                            <input matInput formControlName="prefix" placeholder="Ex: Dr., M.">
+                            <mat-select formControlName="prefix">
+                              @for (prefix of prefixOptions; track prefix) {
+                                <mat-option [value]="prefix">{{ prefix || '(Aucun)' }}</mat-option>
+                              }
+                            </mat-select>
                           </mat-form-field>
 
                           <mat-form-field class="form-field">
                             <mat-label>Suffixe</mat-label>
-                            <input matInput formControlName="suffix" placeholder="Ex: Jr., III">
+                            <mat-select formControlName="suffix">
+                              <mat-option [value]="null">(Aucun)</mat-option>
+                              @for (suffix of suffixOptions; track suffix) {
+                                <mat-option [value]="suffix">{{ suffix }}</mat-option>
+                              }
+                            </mat-select>
                           </mat-form-field>
 
                           <button
@@ -160,7 +207,7 @@
                 <div class="form-row">
                   <mat-form-field class="form-field">
                     <mat-label>Date de naissance</mat-label>
-                    <input matInput [matDatepicker]="picker" formControlName="birthDate" placeholder="DD/MM/YYYY">
+                    <input matInput [matDatepicker]="picker" formControlName="birthDate" placeholder="DD/MM/YYYY" (dateChange)="onBirthDateChange($event)">
                     <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
                     <mat-datepicker #picker></mat-datepicker>
                     @if (patientForm.get('birthDate')?.hasError('required') && (patientForm.get('birthDate')?.touched || formSubmitted)) {
@@ -201,14 +248,40 @@
               @if (currentStep === 4) {
                 <div class="step-content fade-in">
                   <div class="form-row">
-                    <mat-form-field class="form-field form-field-full">
-                      <mat-label>Référence du médecin traitant</mat-label>
-                      <input matInput formControlName="generalPractitioner" placeholder="Ex: Practitioner/123">
-                      <mat-hint>Format: Practitioner/[id]</mat-hint>
-                    </mat-form-field>
+                    @if (!customPractitionerMode) {
+                      <mat-form-field class="form-field form-field-full">
+                        <mat-label>Médecin traitant</mat-label>
+                        <mat-select formControlName="generalPractitioner">
+                          <mat-option [value]="null">-- Pas de médecin assigné --</mat-option>
+                          @for (practitioner of practitionerOptions; track practitioner.id) {
+                            <mat-option [value]="practitioner.id">{{ practitioner.label }}</mat-option>
+                          }
+                          <mat-optgroup label="Options supplémentaires">
+                            <mat-option (click)="toggleCustomPractitioner()">+ Ajouter un autre médecin</mat-option>
+                          </mat-optgroup>
+                        </mat-select>
+                        <mat-hint>Sélectionnez un médecin ou laissez vide</mat-hint>
+                      </mat-form-field>
+                    }
+                    @if (customPractitionerMode) {
+                      <mat-form-field class="form-field form-field-full">
+                        <mat-label>Référence du médecin traitant (personnalisé)</mat-label>
+                        <input matInput formControlName="generalPractitioner" placeholder="Ex: Practitioner/medecin-001">
+                        <mat-hint>
+                          <strong>Format FHIR:</strong> Practitioner/[id_du_médecin]<br>
+                          Exemples valides:<br>
+                          • Practitioner/123 (ID numérique)<br>
+                          • Practitioner/dr-dupont-001 (ID textuel)<br>
+                          • Practitioner/uuid-123e4567-e89b-12d3-a456-426614174000<br>
+                          <span style="color: #ff9800; font-weight: bold;">Note:</span> L'ID du médecin doit correspondre à un Practitioner préalablement créé dans votre système FHIR.
+                        </mat-hint>
+                        <button mat-icon-button matSuffix (click)="toggleCustomPractitioner()" type="button" matTooltip="Retour à la liste">
+                          <mat-icon>close</mat-icon>
+                        </button>
+                      </mat-form-field>
+                    }
                   </div>
-                  <p class="info-text">Les informations de couverture et de prise en charge seront saisies à l'étape
-                    suivante.</p>
+                  <p class="info-text">Les informations de couverture et de prise en charge seront saisies à l'étape suivante.</p>
                 </div>
               }
 
@@ -304,12 +377,38 @@
                         <div class="form-row">
                           <mat-form-field class="form-field">
                             <mat-label>Ville</mat-label>
-                            <input matInput formControlName="city">
+                            <input matInput formControlName="city" (input)="searchAddressByCity(i)" [matAutocomplete]="cityAuto" #cityInput>
+                            <mat-hint>Tapez le nom de la ville</mat-hint>
+                            <mat-autocomplete #cityAuto="matAutocomplete" (opened)="cityInput.focus()">
+                              @for (address of addressSuggestions[i] || []; track address.postalCode) {
+                                <mat-option (click)="selectAddress(i, address)">
+                                  {{ address.city }} ({{ address.postalCode }})
+                                </mat-option>
+                              }
+                              @if ((addressSuggestions[i] || []).length === 0 && (addressSuggestions[i] !== undefined)) {
+                                <mat-option disabled>
+                                  Aucune correspondance trouvée
+                                </mat-option>
+                              }
+                            </mat-autocomplete>
                           </mat-form-field>
 
                           <mat-form-field class="form-field">
                             <mat-label>Code postal</mat-label>
-                            <input matInput formControlName="postalCode">
+                            <input matInput formControlName="postalCode" (input)="searchAddressByPostalCode(i)" [matAutocomplete]="postalAuto" #postalInput>
+                            <mat-hint>Tapez le code postal</mat-hint>
+                            <mat-autocomplete #postalAuto="matAutocomplete" (opened)="postalInput.focus()">
+                              @for (address of addressSuggestions[i] || []; track address.postalCode) {
+                                <mat-option (click)="selectAddress(i, address)">
+                                  {{ address.postalCode }} - {{ address.city }}
+                                </mat-option>
+                              }
+                              @if ((addressSuggestions[i] || []).length === 0 && (addressSuggestions[i] !== undefined)) {
+                                <mat-option disabled>
+                                  Aucune correspondance trouvée
+                                </mat-option>
+                              }
+                            </mat-autocomplete>
                           </mat-form-field>
 
                           <mat-form-field class="form-field">
@@ -385,7 +484,7 @@
                       <mat-icon>calendar_today</mat-icon>
                       <div class="recap-content">
                         <strong>Date de naissance</strong>
-                        <p>{{ patientForm.get('birthDate')?.value | date: 'dd/MM/yyyy' }}</p>
+                        <p>{{ formatDateForDisplay(patientForm.get('birthDate')?.value) }}</p>
                       </div>
                     </div>
 
