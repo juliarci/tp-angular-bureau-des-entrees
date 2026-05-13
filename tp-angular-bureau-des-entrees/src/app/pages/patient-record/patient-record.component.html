@@ -1,2 +1,184 @@
-<h1>Fiche patient</h1>
-<p>Page en construction</p>
+@if (error) {
+  <div class="error">{{ error }}</div>
+}
+
+@if (patient) {
+
+  <div class="patient-header">
+    <div class="patient-avatar">
+      {{ patient.name?.[0]?.family?.[0] }}{{ patient.name?.[0]?.given?.[0]?.[0] }}
+    </div>
+    <div class="patient-header__info">
+      <div class="patient-header__top">
+        <h1 class="patient-header__name">
+          {{ patient.name?.[0]?.family }}, {{ patient.name?.[0]?.given?.[0] }}
+        </h1>
+        <span class="badge"
+              [class.badge--feminin]="patient.gender === 'female'"
+              [class.badge--masculin]="patient.gender === 'male'">
+          {{ patient.gender === 'female' ? '♀ Féminin' : '♂ Masculin' }}
+        </span>
+        <span class="identite-tag">● Identité qualifiée</span>
+      </div>
+      <div class="patient-header__meta">
+        <span><strong>NÉ(E) LE</strong> {{ patient.birthDate }}</span>
+        <span><strong>IPP</strong> {{ patient.identifier?.[0]?.value ?? '—' }}</span>
+        <span><strong>INS-NIR</strong> {{ patient.identifier?.[1]?.value ?? '—' }}</span>
+      </div>
+    </div>
+  </div>
+
+  <nav class="tabs">
+    @for (tab of tabs; track tab.id) {
+      <button class="tabs__item"
+              [class.tabs__item--active]="activeTab === tab.id"
+              (click)="activeTab = tab.id">
+        {{ tab.label }}
+      </button>
+    }
+  </nav>
+
+  @if (activeTab === 'synthese') {
+    <div class="synthese-grid">
+
+      <section class="card">
+        <div class="card__header">
+          <span class="card__title">🗂 État civil</span>
+          <button class="btn btn--ghost">✏️ Modifier</button>
+        </div>
+        <div class="card__body">
+          <div class="field-row">
+            <span class="field-label">NOM</span>
+            <span class="field-value">{{ patient.name?.[0]?.family ?? '—' }}</span>
+          </div>
+          <div class="field-row">
+            <span class="field-label">PRÉNOM(S)</span>
+            <span class="field-value">{{ patient.name?.[0]?.given?.join(', ') ?? '—' }}</span>
+          </div>
+          <div class="field-row">
+            <span class="field-label">DATE DE NAISSANCE</span>
+            <span class="field-value">{{ patient.birthDate ?? '—' }}</span>
+          </div>
+          <div class="field-row">
+            <span class="field-label">SEXE</span>
+            <span class="field-value">{{ patient.gender === 'female' ? 'Féminin' : 'Masculin' }}</span>
+          </div>
+          @if (getNationality() !== '—') {
+            <div class="field-row">
+              <span class="field-label">NATIONALITÉ</span>
+              <span class="field-value">{{ getNationality() }}</span>
+            </div>
+          }
+        </div>
+
+      </section>
+
+      <section class="card">
+        <div class="card__header">
+          <span class="card__title">🪪 Identifiants</span>
+          <button class="btn btn--ghost">✏️ Qualifier</button>
+        </div>
+        <div class="card__body">
+          @for (id of patient.identifier ?? []; track id.value) {
+            <div class="field-row">
+              <span class="field-label">
+          @switch (id.type?.coding?.[0]?.code) {
+            @case ('MR') {
+              IPP
+            }
+            @case ('NI') {
+              INS-NIR
+            }
+            @default {
+              {{ id.type?.coding?.[0]?.code ?? 'ID' }}
+            }
+          }
+        </span>
+              <span class="field-value">{{ id.value ?? '—' }}</span>
+            </div>
+          }
+        </div>
+      </section>
+
+      <section class="card">
+        <div class="card__header">
+          <span class="card__title">📍 Coordonnées</span>
+          <button class="btn btn--ghost">✏️ Modifier</button>
+        </div>
+        <div class="card__body">
+          @for (tel of patient.telecom ?? []; track tel.value) {
+            <div class="field-row">
+              <span class="field-label">{{ tel.use?.toUpperCase() ?? tel.system?.toUpperCase() }}</span>
+              <span class="field-value">{{ tel.value ?? '—' }}</span>
+            </div>
+          }
+          @if (patient.address?.[0]) {
+            <div class="field-row">
+              <span class="field-label">ADRESSE</span>
+              <span class="field-value">
+                {{ patient.address?.[0]?.line?.join(', ') }}<br>
+                {{ patient.address?.[0]?.postalCode }} {{ patient.address?.[0]?.city }}
+              </span>
+            </div>
+          }
+        </div>
+      </section>
+
+      <section class="card">
+        <div class="card__header">
+          <span class="card__title">👤 Contact de confiance</span>
+          <button class="btn btn--ghost">✏️ Modifier</button>
+        </div>
+        <div class="card__body">
+          @if (patient.contact && patient.contact.length > 0) {
+            @for (contact of patient.contact; track $index) {
+              <div class="field-row">
+                <span class="field-label">NOM</span>
+                <span class="field-value">
+            {{ contact.name?.text ?? (contact.name?.family + ' ' + contact.name?.given?.[0]) }}
+          </span>
+              </div>
+
+              @if (contact.telecom && contact.telecom.length > 0) {
+                <div class="field-row">
+                  <span class="field-label">TÉLÉPHONE</span>
+                  <span class="field-value">{{ contact.telecom[0]?.value ?? '—' }}</span>
+                </div>
+              }
+
+              @if (contact.relationship && contact.relationship.length > 0) {
+                <div class="field-row">
+                  <span class="field-label">RELATION</span>
+                  <span class="field-value">
+              {{ contact.relationship[0]?.text ?? contact.relationship[0]?.coding?.[0]?.display ?? '—' }}
+            </span>
+                </div>
+              }
+            }
+          } @else {
+            <p class="empty">Aucun contact renseigné</p>
+          }
+        </div>
+      </section>
+
+      <section class="card">
+        <div class="card__header">
+          <span class="card__title">👨‍⚕️ Médecin traitant</span>
+          <button class="btn btn--ghost">✏️ Modifier</button>
+        </div>
+        <div class="card__body">
+          @if (practitioner) {
+            <div class="field-row">
+              <span class="field-label">NOM</span>
+              <span class="field-value">{{ getPractitionerName() }}</span>
+            </div>
+          } @else {
+            <p class="empty">Aucun médecin traitant renseigné</p>
+          }
+        </div>
+      </section>
+
+    </div>
+  }
+
+}
