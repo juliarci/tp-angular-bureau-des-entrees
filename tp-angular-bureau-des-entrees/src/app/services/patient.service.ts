@@ -35,7 +35,7 @@ export class PatientService {
       params = params.set('birthdate', criteria.birthdate);
     }
 
-    return this.http.get<Bundle>(`${this.apiUrl}/Patient`, { params }).pipe(
+    return this.http.get<Bundle>(`${this.apiUrl}`, { params }).pipe(
       map(bundle => {
         if (!bundle.entry) return [];
         return bundle.entry
