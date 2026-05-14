@@ -15,6 +15,30 @@ export class PatientService {
 
   constructor(private http: HttpClient) {}
 
+  // Récupère un seul patient par IPP
+  getPatient(IppIdentifier: string): Observable<Patient[]> {
+    return this.http.get<Bundle>(`${this.apiUrl}/Patient?identifier=${IppIdentifier}`).pipe(
+      map(bundle => {
+        console.log('Bundle reçu :', bundle);  // ← Debug
+        if (!bundle.entry) return [];
+        return bundle.entry
+          //.filter(e => (e.resource as any)?.resourceType === 'Patient')
+          .map(e => e.resource as Patient);
+      })
+    );
+  }
+
+// Récupère un médecin par ID
+  getPractitioner(practitionerId: string): Observable<any> {
+    return this.http.get<any>(`${this.apiUrl}/Practitioner/${practitionerId}`).pipe(
+      map(bundle => {
+        console.log('Bundle reçu :', bundle);  // ← Debug
+        if (!bundle.entry) return [];
+        return bundle.entry
+          //.filter(e => (e.resource as any)?.resourceType === 'Patient')
+          .map((e: any) => e.resource as Patient);
+      })
+    );
   /**
    * Crée un nouveau patient dans la BDD FHIR
    */
