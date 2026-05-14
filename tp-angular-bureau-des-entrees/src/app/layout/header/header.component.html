@@ -1,19 +1,18 @@
-<header class="header">
-  <div class="search-container">
-    <mat-form-field appearance="outline" class="search-field">
+@if (!isNewAdmissionPage) {
+  <header class="header">
+    <div class="search-container">
+      <mat-form-field appearance="outline" class="search-field">
+        <input matInput
+               #searchInput
+               placeholder="Rechercher un patient (nom, IPP, INS, date de naissance)...">
+        <span matSuffix class="kbd-shortcut">Ctrl K</span>
+      </mat-form-field>
+    </div>
 
-      <input matInput
-             #searchInput
-             placeholder="Rechercher un patient (nom, IPP, INS, date de naissance)...">
-      <span matSuffix class="kbd-shortcut">Ctrl K</span>
-    </mat-form-field>
-  </div>
-
-  <div class="header-actions">
-
-    <button mat-raised-button class="admission-btn" routerLink="/patients/new-admission">
-
-      Nouvelle admission
-    </button>
-  </div>
-</header>
+    <div class="header-actions">
+      <button mat-raised-button class="admission-btn" routerLink="/patients/new-admission">
+        Nouvelle admission
+      </button>
+    </div>
+  </header>
+}

@@ -1,2 +1,113 @@
-<h1>Admissions du jour</h1>
-<p>Page en construction</p>
+<div class="admissions-header">
+  <div class="admissions-title-row">
+    <h1>Admissions du {{ today | date: 'fullDate' }}</h1>
+  </div>
+
+  <div class="admissions-filters-container mat-elevation-z2">
+    <mat-form-field appearance="outline" style="min-width: 120px; flex: 1;">
+      <mat-label>Rechercher un patient, date de naissance...</mat-label>
+      <input matInput placeholder="Recherche...">
+    </mat-form-field>
+    <mat-form-field appearance="outline" style="min-width: 90px;">
+      <mat-label>Service</mat-label>
+      <mat-select>
+        <mat-option value="">Tous services</mat-option>
+        <mat-option value="cardio">Cardiologie</mat-option>
+        <mat-option value="chir">Chirurgie digestive</mat-option>
+        <mat-option value="mater">Maternité</mat-option>
+      </mat-select>
+    </mat-form-field>
+    <mat-form-field appearance="outline" style="min-width: 90px;">
+      <mat-label>Site</mat-label>
+      <mat-select>
+        <mat-option value="faubourg">Site Faubourg</mat-option>
+      </mat-select>
+    </mat-form-field>
+    <mat-form-field appearance="outline" style="min-width: 90px;">
+      <mat-label>Agent</mat-label>
+      <mat-select>
+        <mat-option value="">Tous agents</mat-option>
+      </mat-select>
+    </mat-form-field>
+    <mat-form-field appearance="outline" style="min-width: 90px;">
+      <mat-label>Période</mat-label>
+      <mat-select>
+        <mat-option value="">Toute la journée</mat-option>
+      </mat-select>
+    </mat-form-field>
+    <div class="filter-actions">
+      <button  mat-raised-button class="clear-btn" (click)="clearFilters()">Effacer</button>
+    </div>
+  </div>
+</div>
+
+<div class="admissions-table-container">
+  <table mat-table [dataSource]="appointments" class="mat-elevation-z8 admissions-table">
+    <!-- Heure Column -->
+    <ng-container matColumnDef="heure">
+      <th mat-header-cell *matHeaderCellDef>Heure</th>
+      <td mat-cell *matCellDef="let appointment">{{ appointment.start | date:'HH:mm' }}</td>
+    </ng-container>
+
+    <!-- Patient Column -->
+    <ng-container matColumnDef="patient">
+      <th mat-header-cell *matHeaderCellDef>Patient</th>
+      <td mat-cell *matCellDef="let appointment">
+        <b>{{ appointment.participant?.find(p => p.actor?.type === 'Patient')?.actor?.display }}</b>
+      </td>
+    </ng-container>
+
+    <!-- Identité Column -->
+    <ng-container matColumnDef="identite">
+      <th mat-header-cell *matHeaderCellDef>Identité</th>
+      <td mat-cell *matCellDef="let appointment">
+        <span class="identite qualifiee">Qualifiée</span>
+      </td>
+    </ng-container>
+
+    <!-- Service Column -->
+    <ng-container matColumnDef="service">
+      <th mat-header-cell *matHeaderCellDef>Service · UF</th>
+      <td mat-cell *matCellDef="let appointment">
+        {{ appointment.description }}<br>
+        <span class="uf">{{ appointment.participant?.find(p => p.actor?.type === 'Location')?.actor?.display }}</span>
+      </td>
+    </ng-container>
+
+    <!-- Motif Column -->
+    <ng-container matColumnDef="motif">
+      <th mat-header-cell *matHeaderCellDef>Motif</th>
+      <td mat-cell *matCellDef="let appointment">{{ appointment.description }}</td>
+    </ng-container>
+
+    <!-- Statut Column -->
+    <ng-container matColumnDef="statut">
+      <th mat-header-cell *matHeaderCellDef>Statut</th>
+      <td mat-cell *matCellDef="let a">
+        <span class="statut-badge" [ngClass]="a.status">{{ a.status }}</span>
+      </td>
+    </ng-container>
+
+    <!-- Agent Column -->
+    <ng-container matColumnDef="agent">
+      <th mat-header-cell *matHeaderCellDef>Agent</th>
+      <td mat-cell *matCellDef="let appointment">
+        {{ appointment.participant?.find(p => p.actor?.type === 'Practitioner')?.actor?.display }}
+      </td>
+    </ng-container>
+
+    <!-- Action Column -->
+    <ng-container matColumnDef="action">
+      <th mat-header-cell *matHeaderCellDef></th>
+      <td mat-cell *matCellDef="let appointment">
+        <button mat-button color="primary">Action</button>
+      </td>
+    </ng-container>
+
+    <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+    <tr mat-row *matRowDef="let row; columns: displayedColumns;" (click)="goToPatientRecord(row)" style="cursor:pointer;"></tr>
+  </table>
+  <div [@if]="appointments.length === 0" class="empty-table-message" style="text-align:center; color:#888; padding:2em;">
+    Aucune admission à afficher pour ce jour.
+  </div>
+</div>
