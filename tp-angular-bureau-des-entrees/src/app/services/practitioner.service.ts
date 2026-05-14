@@ -19,7 +19,7 @@ export class PractitionerService {
   }
 
   // Récupère tous les médecins
-  getAllPractitioners(): Observable<Practitioner[]> {
+  getPractitioners(): Observable<Practitioner[]> {
     return this.http.get<Bundle>(`${this.apiUrl}/Practitioner`).pipe(
       map(bundle => {
         if (!bundle.entry) return [];
