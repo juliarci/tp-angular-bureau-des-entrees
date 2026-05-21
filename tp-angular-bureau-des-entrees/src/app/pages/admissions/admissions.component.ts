@@ -1,5 +1,7 @@
-import { Component, OnInit, LOCALE_ID, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, LOCALE_ID } from '@angular/core';
 import { CommonModule, registerLocaleData, DatePipe } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { Router } from '@angular/router';
 import localeFr from '@angular/common/locales/fr';
 import { MatTableModule } from '@angular/material/table';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -7,7 +9,6 @@ import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
-import { MatChipsModule } from '@angular/material/chips';
 
 import { AppointmentHistoryService } from '../../services/appointment-history.service';
 import { Appointment, getParticipantByType } from '../../models/appointment.model';
@@ -21,13 +22,13 @@ registerLocaleData(localeFr);
   styleUrl: './admissions.component.scss',
   imports: [
     CommonModule,
+    FormsModule,
     MatTableModule,
     MatFormFieldModule,
     MatInputModule,
     MatSelectModule,
     MatButtonModule,
     MatIconModule,
-    MatChipsModule,
     DatePipe
   ],
   providers: [
@@ -38,7 +39,7 @@ export class AdmissionsComponent implements OnInit {
   appointments: Appointment[] = [];
   filteredAppointments: Appointment[] = [];
 
-displayedColumns = [ 'heure', 'patient', 'identite', 'service', 'motif', 'statut', 'agent', 'action'];
+  displayedColumns = ['heure', 'patient', 'identite', 'service', 'motif', 'statut', 'agent', 'action'];
 
   today: Date = new Date();
 
@@ -52,29 +53,75 @@ displayedColumns = [ 'heure', 'patient', 'identite', 'service', 'motif', 'statut
     noshow:    'Absent',
   };
 
+  // Filtres
   selectedService = '';
   selectedAgent = '';
   selectedStatus = '';
   searchText = '';
 
-  constructor(private appointmentHistoryService: AppointmentHistoryService, private cd: ChangeDetectorRef) {}
+  // Options de filtres (générées dynamiquement)
+  services: string[] = [];
+  agents: string[] = [];
+  statuses: string[] = [];
+
+  constructor(
+    private appointmentHistoryService: AppointmentHistoryService,
+    private router: Router
+  ) {}
 
   ngOnInit(): void {
-    this.appointmentHistoryService.getTodayHistory().subscribe((rdvs) => {
-      this.appointments = rdvs;
-      this.cd.detectChanges();
+    this.appointmentHistoryService.getTodayHistory().subscribe((appointments) => {
+      this.appointments = appointments;
+      this.extractFilterOptions();
       this.applyFilters();
     });
   }
 
+  /**
+   * Extrait les valeurs uniques pour les filtres
+   */
+  private extractFilterOptions(): void {
+    // Extraire les services uniques
+    this.services = [...new Set(
+      this.appointments
+        .map(a => a.description)
+        .filter((v) => v !== undefined && v !== null)
+    )].sort();
+
+    // Extraire les agents uniques (Practitioner)
+    this.agents = [...new Set(
+      this.appointments
+        .flatMap(a => a.participant || [])
+        .filter(p => p.actor?.type === 'Practitioner')
+        .map(p => p.actor?.display)
+        .filter((v) => v !== undefined && v !== null)
+    )].sort();
+
+    // Extraire les statuts uniques
+    this.statuses = [...new Set(
+      this.appointments
+        .map(a => a.status)
+        .filter((v) => v !== undefined && v !== null)
+    )].sort();
+  }
+
+  /**
+   * Récupère le patient d'un rendez-vous
+   */
   getPatient(appointment: Appointment) {
     return getParticipantByType(appointment.participant, 'Patient');
   }
 
-  get patient() {
-    return (appointment: Appointment) => getParticipantByType(appointment.participant, 'Patient');
+  /**
+   * Récupère l'étiquette française du statut
+   */
+  getStatusLabel(status: string): string {
+    return this.statusLabel[status] || status;
   }
 
+  /**
+   * Réinitialise tous les filtres
+   */
   clearFilters(): void {
     this.selectedService = '';
     this.selectedAgent = '';
@@ -83,23 +130,34 @@ displayedColumns = [ 'heure', 'patient', 'identite', 'service', 'motif', 'statut
     this.applyFilters();
   }
 
+  /**
+   * Applique les filtres aux rendez-vous
+   */
   applyFilters(): void {
-    this.filteredAppointments = this.appointments.filter(a => {
-      const matchStatus  = !this.selectedStatus  || a.status === this.selectedStatus;
-      const matchSearch  = !this.searchText      ||
-        this.getPatient(a)?.display?.toLowerCase().includes(this.searchText.toLowerCase()) ||
-        a.description?.toLowerCase().includes(this.searchText.toLowerCase());
-      return matchStatus && matchSearch;
+    this.filteredAppointments = this.appointments.filter(appointment => {
+      const matchStatus = !this.selectedStatus || appointment.status === this.selectedStatus;
+      const matchService = !this.selectedService || appointment.description === this.selectedService;
+      const matchAgent = !this.selectedAgent ||
+        appointment.participant?.some(p => p.actor?.type === 'Practitioner' && p.actor?.display === this.selectedAgent);
+      const matchSearch = !this.searchText ||
+        this.getPatient(appointment)?.display?.toLowerCase().includes(this.searchText.toLowerCase()) ||
+        appointment.description?.toLowerCase().includes(this.searchText.toLowerCase());
+
+      return matchStatus && matchService && matchAgent && matchSearch;
     });
   }
 
-  goToPatientRecord(appointment: Appointment) {
+  /**
+   * Navigue vers le dossier patient
+   */
+  goToPatientRecord(appointment: Appointment): void {
     const patient = this.getPatient(appointment);
-    if (patient && patient.identifier && patient.identifier.value) {
-      // Passage de l'IPP en paramètre de navigation
-      window.location.href = `/patients/record?ipp=${patient.identifier.value}`;
+    const ipp = patient?.identifier?.value;
+
+    if (ipp) {
+      this.router.navigate(['/patients/record', ipp]);
     } else {
-      window.location.href = '/patients/record';
+      this.router.navigate(['/patients/record']);
     }
   }
 }
