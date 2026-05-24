@@ -26,7 +26,6 @@ export class AppSidebarComponent {
     {
       title: 'PILOTAGE',
       items: [
-        { label: 'Tableau de bord', route: '/dashboard' },
         { label: 'Admissions du jour', route: '/admissions' }
       ]
     },
@@ -34,7 +33,6 @@ export class AppSidebarComponent {
       title: 'PATIENTS',
       items: [
         { label: 'Recherche patient', route: '/patients/search' },
-        { label: 'Fiche patient', route: '/patients/record' },
         { label: 'Nouvelle admission', route: '/patients/new-admission' },
       ]
     },

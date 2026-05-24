@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import {ChangeDetectorRef, Component} from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
@@ -9,6 +9,7 @@ import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MAT_DATE_LOCALE, MatNativeDateModule } from '@angular/material/core';
 import { Patient } from 'fhir/r4';
 import { PatientService } from '../../services/patient.service';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-patient-search',
@@ -40,7 +41,7 @@ export class PatientSearchComponent {
 
   displayedColumns = ['name', 'birthDate', 'gender', 'identifier'];
 
-  constructor(private patientService: PatientService) {}
+  constructor(private patientService: PatientService, private cd: ChangeDetectorRef, private router: Router) {}
 
   search() {
     if (!this.name && !this.identifier && !this.birthdate) return;
@@ -60,10 +61,12 @@ export class PatientSearchComponent {
       next: (patients) => {
         this.patients = patients;
         this.loading = false;
+        this.cd.detectChanges();
       },
       error: () => {
         this.patients = [];
         this.loading = false;
+        this.cd.detectChanges();
       }
     });
   }
@@ -78,5 +81,12 @@ export class PatientSearchComponent {
     const ipp = patient.identifier?.find(id => id.type?.coding?.[0]?.code === 'MR');
     if (ipp) return `IPP: ${ipp.value}`;
     return patient.identifier?.[0]?.value ?? '-';
+  }
+
+  goToPatientRecord(patient: Patient): void {
+    const ipp = patient.identifier?.find(id => id.type?.coding?.[0]?.code === 'MR')?.value;
+    if (ipp) {
+      this.router.navigate(['/patients/record', ipp]);
+    }
   }
 }

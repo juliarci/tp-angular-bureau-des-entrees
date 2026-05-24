@@ -57,12 +57,6 @@ Les données manipulées sont conformes au profil `BureauEntreesPatientProfile`,
 - Modification et affichage depuis la fiche patient
 - Conforme au champ `contact` du profil FSH
 
-### 📊 Tableau de bord
-
-- Vue d'ensemble des admissions du jour par statut
-- Répartition par service et par nationalité
-- Alertes : identités incomplètes, admissions sans médecin traitant
-
 ---
 
 ## 🗂️ Structure des données FHIR
@@ -134,7 +128,6 @@ src/
 │   │       ├── patient.model.ts       # Mapping du profil FHIR
 │   │       └── admission.model.ts
 │   ├── features/
-│   │   ├── dashboard/         # Tableau de bord
 │   │   ├── patients/          # Recherche, fiche, formulaire patient
 │   │   └── admissions/        # Gestion des admissions
 │   └── shared/                # Composants réutilisables (badges, alertes...)
