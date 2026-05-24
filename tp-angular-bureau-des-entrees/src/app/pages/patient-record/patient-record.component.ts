@@ -25,12 +25,7 @@ export class PatientRecordComponent implements OnInit {
   activeTab = 'synthese';
 
   readonly tabs = [
-    { id: 'synthese', label: 'Synthèse' },
-    { id: 'sejours', label: 'Séjours & mouvements' },
-    { id: 'couverture', label: 'Couverture & droits' },
-    { id: 'documents', label: 'Documents' },
-    { id: 'historique', label: 'Historique identitovigilance' },
-    { id: 'annexes', label: 'Annexes' }
+    { id: 'synthese', label: 'Synthèse' }
   ];
 
   getNationality(): string {
