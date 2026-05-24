@@ -44,7 +44,6 @@
       <section class="card">
         <div class="card__header">
           <span class="card__title">🗂 État civil</span>
-          <button class="btn btn--ghost">✏️ Modifier</button>
         </div>
         <div class="card__body">
           <div class="field-row">
@@ -76,7 +75,6 @@
       <section class="card">
         <div class="card__header">
           <span class="card__title">🪪 Identifiants</span>
-          <button class="btn btn--ghost">✏️ Qualifier</button>
         </div>
         <div class="card__body">
           @for (id of patient.identifier ?? []; track id.value) {
@@ -99,11 +97,9 @@
           }
         </div>
       </section>
-
       <section class="card">
         <div class="card__header">
           <span class="card__title">📍 Coordonnées</span>
-          <button class="btn btn--ghost">✏️ Modifier</button>
         </div>
         <div class="card__body">
           @for (tel of patient.telecom ?? []; track tel.value) {
@@ -127,7 +123,6 @@
       <section class="card">
         <div class="card__header">
           <span class="card__title">👤 Contact de confiance</span>
-          <button class="btn btn--ghost">✏️ Modifier</button>
         </div>
         <div class="card__body">
           @if (patient.contact && patient.contact.length > 0) {
@@ -164,7 +159,6 @@
       <section class="card">
         <div class="card__header">
           <span class="card__title">👨‍⚕️ Médecin traitant</span>
-          <button class="btn btn--ghost">✏️ Modifier</button>
         </div>
         <div class="card__body">
           @if (practitioner) {
