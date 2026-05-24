@@ -1,5 +1,5 @@
 import { Component, OnInit, inject, ChangeDetectorRef } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { CommonModule, DatePipe } from '@angular/common';
 import { ActivatedRoute } from '@angular/router';
 import { PatientService } from '../../services/patient.service';
 import { Patient } from 'fhir/r4';
@@ -35,6 +35,16 @@ export class PatientRecordComponent implements OnInit {
 
   getNationality(): string {
     return this.patient?.extension?.[0]?.valueCodeableConcept?.coding?.[0]?.display ?? '—';
+  }
+
+  formatBirthDate(date: string | undefined): string {
+    if (!date) return '—';
+    const datePipe = new DatePipe('fr-FR');
+    try {
+      return datePipe.transform(date, 'longDate')?.toUpperCase() ?? '—';
+    } catch {
+      return date;
+    }
   }
 
   constructor(private cd: ChangeDetectorRef) {

@@ -65,6 +65,8 @@ export const NATIONALITY_EXTENSION_URL =
   "https://example.org/fhir/StructureDefinition/PatientExtension";
 export const NATIONALITY_CS_URL =
   "https://example.org/fhir/CodeSystem/CSAllNationalities";
+export const BUREAU_ENTREES_PROFILE_URL =
+  "http://isis.fr/StructureDefinition/bureau-entrees-patient";
 
 // --- Types FHIR de base ---
 
@@ -72,6 +74,10 @@ export interface Coding {
   system?: string;
   code?: string;
   display?: string;
+}
+
+export interface Meta {
+  profile?: string[];
 }
 
 export interface PatientContact {
@@ -105,6 +111,9 @@ export interface NationaliteExtension {
 
 export interface BureauEntreesPatient {
   resourceType: "Patient";
+
+  /** Métadonnées FHIR (incluant le profil) */
+  meta?: Meta;
 
   /** IPP obligatoire (1..1), INS optionnel (0..1) */
   identifier: [IppIdentifier, ...InsIdentifier[]];

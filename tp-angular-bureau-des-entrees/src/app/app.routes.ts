@@ -7,7 +7,6 @@ export const routes: Routes = [
     component: AppLayoutComponent,
     children: [
       { path: '', redirectTo: 'patients/search', pathMatch: 'full' },
-      { path: 'dashboard', loadComponent: () => import('./pages/dashboard/dashboard.component').then(m => m.DashboardComponent) },
       { path: 'admissions', loadComponent: () => import('./pages/admissions/admissions.component').then(m => m.AdmissionsComponent) },
       { path: 'patients/search', loadComponent: () => import('./pages/patient-search/patient-search.component').then(m => m.PatientSearchComponent) },
       { path: 'patients/record', loadComponent: () => import('./pages/patient-record/patient-record.component').then(m => m.PatientRecordComponent) },

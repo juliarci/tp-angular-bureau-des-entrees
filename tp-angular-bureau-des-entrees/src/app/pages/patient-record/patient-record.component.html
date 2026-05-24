@@ -21,7 +21,7 @@
         <span class="identite-tag">● Identité qualifiée</span>
       </div>
       <div class="patient-header__meta">
-        <span><strong>NÉ(E) LE</strong> {{ patient.birthDate }}</span>
+        <span><strong>NÉ(E) LE</strong> {{ formatBirthDate(patient.birthDate) }}</span>
         <span><strong>IPP</strong> {{ patient.identifier?.[0]?.value ?? '—' }}</span>
         <span><strong>INS-NIR</strong> {{ patient.identifier?.[1]?.value ?? '—' }}</span>
       </div>
@@ -57,7 +57,7 @@
           </div>
           <div class="field-row">
             <span class="field-label">DATE DE NAISSANCE</span>
-            <span class="field-value">{{ patient.birthDate ?? '—' }}</span>
+            <span class="field-value">{{ formatBirthDate(patient.birthDate) }}</span>
           </div>
           <div class="field-row">
             <span class="field-label">SEXE</span>

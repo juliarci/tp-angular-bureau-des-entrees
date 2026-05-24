@@ -16,7 +16,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
-import { BureauEntreesPatient, Nationality, NationalityDisplay } from '../../models/patient.model';
+import { BureauEntreesPatient, Nationality, NationalityDisplay, BUREAU_ENTREES_PROFILE_URL } from '../../models/patient.model';
 import { PatientService } from '../../services/patient.service';
 import { AddressService, AddressResult } from '../../services/address.service';
 import {PractitionerService} from '../../services/practitioner.service';
@@ -520,6 +520,9 @@ export class NewAdmissionComponent implements OnInit {
 
     return {
       resourceType: 'Patient',
+      meta: {
+        profile: [BUREAU_ENTREES_PROFILE_URL]
+      },
       identifier: identifiers as any,
       name: formValue.names.map((name: any) => ({
         use: name.use,
