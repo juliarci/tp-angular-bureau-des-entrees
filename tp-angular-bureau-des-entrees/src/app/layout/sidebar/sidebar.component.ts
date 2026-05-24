@@ -33,7 +33,6 @@ export class AppSidebarComponent {
       title: 'PATIENTS',
       items: [
         { label: 'Recherche patient', route: '/patients/search' },
-        { label: 'Fiche patient', route: '/patients/record' },
         { label: 'Nouvelle admission', route: '/patients/new-admission' },
       ]
     },
