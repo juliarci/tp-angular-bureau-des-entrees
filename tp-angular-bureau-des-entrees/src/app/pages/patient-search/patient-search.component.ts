@@ -5,6 +5,8 @@ import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
 import { MatTableModule } from '@angular/material/table';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatDatepickerModule } from '@angular/material/datepicker';
+import { MAT_DATE_LOCALE, MatNativeDateModule } from '@angular/material/core';
 import { Patient } from 'fhir/r4';
 import { PatientService } from '../../services/patient.service';
 
@@ -17,7 +19,12 @@ import { PatientService } from '../../services/patient.service';
     MatInputModule,
     MatButtonModule,
     MatTableModule,
-    MatProgressSpinnerModule
+    MatProgressSpinnerModule,
+    MatDatepickerModule,
+    MatNativeDateModule
+  ],
+  providers: [
+    { provide: MAT_DATE_LOCALE, useValue: 'fr-FR' },
   ],
   templateUrl: './patient-search.component.html',
   styleUrl: './patient-search.component.scss'
@@ -25,7 +32,7 @@ import { PatientService } from '../../services/patient.service';
 export class PatientSearchComponent {
   name = '';
   identifier = '';
-  birthdate = '';
+  birthdate: Date | null = null;
 
   patients: Patient[] = [];
   loading = false;
@@ -41,10 +48,14 @@ export class PatientSearchComponent {
     this.loading = true;
     this.searched = true;
 
+    const birthdateStr = this.birthdate
+      ? this.birthdate.toISOString().split('T')[0]
+      : undefined;
+
     this.patientService.searchPatients({
       name: this.name || undefined,
       identifier: this.identifier || undefined,
-      birthdate: this.birthdate || undefined
+      birthdate: birthdateStr
     }).subscribe({
       next: (patients) => {
         this.patients = patients;
