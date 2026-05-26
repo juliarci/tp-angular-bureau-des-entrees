@@ -1,5 +1,7 @@
 # 🏥 Bureau des Entrées — Application de gestion des admissions hospitalières
 
+## Sara Sarkissian, Julia Ricci, Chiara Soulié, Tiphaine Mériot 
+
 Application web développée avec **Angular** dans le cadre d'un TP de modélisation FHIR R4.  
 Elle simule le bureau des entrées d'un hôpital français et implémente les profils définis selon les standards **FRCore / HL7 France**.
 
